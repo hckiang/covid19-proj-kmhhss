@@ -37,3 +37,33 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Python Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Python Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+
+# Apple stuff
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Apple thumbnails
+._*
