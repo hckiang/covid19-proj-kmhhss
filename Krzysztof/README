@@ -1,2 +1,6 @@
 Some comparison of excess mortality of European countries with Poland and Sweden.
 For improvement, but an idea what I think could be relevant.
+
+I cannot upload the tsv files nor output graphics as the zip file would be too large. The R code works with the downloaded tsv files from the demo_r_mweek3 mortality dataset (file needs to be called Eurostat_Deaths_20210317_tsv) and the population demo_r_pjangrp3 dataset (file needs to be called Eurostat_Populations_20210319_tsv). Please see read_Eurostat_tsv.R, the data files need to be one directory above. But of course feel free to edit read_Eurostat_tsv.R to improve.
+
+
