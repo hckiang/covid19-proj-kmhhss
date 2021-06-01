@@ -1,0 +1,12 @@
+suppressPackageStartupMessages({
+  library('stringr')
+  library('purrr')
+  library('reshape2')
+  library('gtools')
+  library('lattice')
+  library('tibble')
+  library('latticeExtra')
+  library('RColorBrewer')
+  library('outliers')
+})
+source('readdat2.R')

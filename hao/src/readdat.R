@@ -1,0 +1,110 @@
+## This file creates some data frames of clean Swedish data. Source() this file.
+## To see what data frames are produced please just scroll to the end of the file. :)
+
+
+options(stringsAsFactors = T)
+
+suppressPackageStartupMessages({
+  library("stringr")
+  library("purrr")
+  library("reshape2")
+  library("gtools")
+  library("lattice")
+  library("tibble")
+  library("latticeExtra")
+  library("RColorBrewer")
+})
+
+source("filepath-def.R")
+
+cat("Preprocessing data...\n")
+
+## EuroStat Death
+deathraw = read.csv(deathfile)
+
+## EuroStat Population
+popuraw = read.csv(popufile)
+
+## Härje Widing's COVID-19 death data
+coviddeathraw = lapply(coviddeathfiles, function (path) {
+    read.csv2(path)
+})
+covidperweek = lapply(coviddeathraw, function (path) {
+
+})
+
+
+## Sweden COVID death count with no male/female counts
+## se_regions_covid_death = readRDS(swedcovidfile)
+
+levels(deathraw$age)[levels(deathraw$age)=="NK"]   = "UNK"        # Typo in the CSV file, I guess
+levels(deathraw$age)[levels(deathraw$age)=="OTAL"] = "TOTAL"
+for (i in seq_along(levels(deathraw$age)))                        # I want level names in deathraw matches popu
+  levels(deathraw$age)[i] = str_replace(levels(deathraw$age)[i], "-", "_")
+
+
+loclvl = function (l) nchar(l) - 2                                     # Region code to NUTS level
+yr     = function (s) str_extract(s, "\\d{4}")                         # Get year from XyyyyWww format
+wkno   = function (s) str_remove(str_extract(s, "W\\d{2}"), "W")       # Get week from XyyyyWww format
+
+## Set all non-positive/nan/inf/-inf M/F ratio to NA
+na.ify    = defmacro(D, mfratio, expr={ D[[mfratio]][is.na(D[[mfratio]]) | is.nan(D[[mfratio]]) | (! is.finite(D[[mfratio]])) | D[[mfratio]] <= 0] = NA })
+
+## Make an M/F ratio table out of the input death toll and population count
+mkmf = function (deathraw, popu, lvl) {
+  allloc = unique(levels(deathraw$geo.time))     # All available NUTS codes
+  loc = allloc[loclvl(allloc) %in% lvl]          # Target NUTS codes
+  agegrp = unique(levels(deathraw$age))          # Target age group
+  sex    = c("F","M")                            # Target sex. we don't use "T"
+  availmask     = deathraw$age %in% agegrp &
+                  deathraw$geo.time %in% loc &
+                  deathraw$sex %in% sex
+  deathraw      = data.frame(deathraw)           # Copy the data frame before changing it.
+  deathraw      = deathraw[availmask,]
+  deathraw.mlt    = melt(deathraw, id.vars=c("sex", "age", "geo.time"))
+  deathraw.mlt$yr   = yr(deathraw.mlt$variable)
+  deathraw.mlt$popyr= ifelse(deathraw.mlt$yr == "2020", "2019", deathraw.mlt$yr)
+  deathraw.mlt$wkno = wkno(deathraw.mlt$variable)
+  
+  popu.mlt = melt(popu, id.vars=c("sex", "age", "geo.time"))
+  popu.mlt$variable = yr(popu.mlt$variable)
+  colnames(popu.mlt)[colnames(popu.mlt) == "variable"] = "popyr"
+
+  tmp.mlt = merge(popu.mlt, deathraw.mlt, by = c("sex","age","geo.time","popyr"),
+                  suffixes=c(".popu",".death"))                                                  # Inner-joining the two tables
+  mdf = tmp.mlt[tmp.mlt$sex == "M",];  fdf = tmp.mlt[tmp.mlt$sex == "F",];
+  mdf$sex      = NULL;                  fdf$sex      = NULL;
+  mdf$variable = NULL;                  fdf$variable = NULL;
+  mdf$popyr    = NULL;                  fdf$popyr    = NULL;
+  rm(tmp.mlt); rm(popu.mlt); rm(deathraw.mlt)
+  mf.mlt = merge(mdf, fdf, by = c("age","geo.time","yr", "wkno"), suffixes = c(".m", ".f"))     # Inner-join again
+  #mf.mlt$deathpc.m = mf.mlt$value.death.m / mf.mlt$value.popu.m                                # Death per capita male
+  #mf.mlt$deathpc.f = mf.mlt$value.death.f / mf.mlt$value.popu.f                                # Death per capita female
+  #mf.mlt$mfratio   = mf.mlt$deathpc.m / mf.mlt$deathpc.f                                       # Per-capita M/F ratio
+  mf.mlt$mfratio   = (mf.mlt$value.death.m/mf.mlt$value.death.f) * (mf.mlt$value.popu.f/mf.mlt$value.popu.m)  # *** NOT USED AT ALL ***
+  na.ify(mf.mlt, "mfratio")
+  # mf.mlt[which(!is.na(mf.mlt$mfratio)),]
+  mf.mlt
+}
+
+## !! IMPORTANT.
+## SE
+mf = mkmf(deathraw, popuraw, 0)
+#mfexc = excess_wrt_meanpopu(mf)
+## SE1
+mf.1 = mkmf(deathraw, popuraw, 1)
+#mfexc.1 = excess_wrt_meanpopu(mf.1)
+##mfexc.1 = excess_wrt19(mf.1)
+## SE12
+mf.2 = mkmf(deathraw, popuraw, 2)
+#mfexc.2 = excess_wrt_meanpopu(mf.2)
+## mfexc.2 = excess_wrt19(mf.2)
+mf.3 = mkmf(deathraw, popuraw, 3)
+#mfexc.3 = excess_wrt_meanpopu(mf.3)
+
+
+
+#mfexc   = readRDS('../dat/mfexc.rds')
+#mfexc.1 = readRDS('../dat/mfexc.1.rds')
+
+
