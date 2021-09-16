@@ -48,6 +48,22 @@ ts_deaths_100k_w_dtw <-read.csv(
   "./data/clustering_distance_datasets/ts_deaths_100k_w_dtw.csv",
   row.names = 1)
 
+total_mortality_100K_wo_dtw <-read.csv(
+  "./data/clustering_distance_datasets/total_mortality_100K_wo_dtw.csv",
+  row.names = 1)
+
+excess_mortality_100K_wo_dtw <-read.csv(
+  "./data/clustering_distance_datasets/excess_mortality_100K_wo_dtw.csv",
+  row.names = 1)
+
+total_mortality_100K_w_dtw <-read.csv(
+  "./data/clustering_distance_datasets/total_mortality_100K_w_dtw.csv",
+  row.names = 1)
+
+excess_mortality_100K_w_dtw <-read.csv(
+  "./data/clustering_distance_datasets/excess_mortality_100K_w_dtw.csv",
+  row.names = 1)
+
 # import library
 library(RMaCzek)
 
@@ -66,3 +82,8 @@ plot(czek_matrix(ts_cases_100k_wo_dtw, scale_data = FALSE, n_classes = 5))
 plot(czek_matrix(ts_deaths_100k_wo_dtw, scale_data = FALSE, n_classes = 6))
 plot(czek_matrix(ts_cases_100k_w_dtw, scale_data = FALSE, n_classes = 6))
 plot(czek_matrix(ts_deaths_100k_w_dtw, scale_data = FALSE, n_classes = 6))
+
+plot(czek_matrix(total_mortality_100K_wo_dtw, scale_data = FALSE, n_classes = 5))
+plot(czek_matrix(excess_mortality_100K_wo_dtw, scale_data = FALSE, n_classes = 4))
+plot(czek_matrix(total_mortality_100K_w_dtw, scale_data = FALSE, n_classes = 3))
+plot(czek_matrix(excess_mortality_100K_w_dtw, scale_data = FALSE, n_classes = 8))
