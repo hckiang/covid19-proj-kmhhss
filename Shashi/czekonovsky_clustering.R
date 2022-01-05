@@ -19,7 +19,14 @@ plot(czek_matrix_out)
 S <- ordering
 N <- length(S) # number of nodes
 size <- rep(1, N)
-dendrogram <- matrix(nrow = nrow(cluster_data) - 1, ncol = 4)
+dendrogram <- matrix(nrow = nrow(cluster_data) - 1, ncol = 4) 
+
+# NB: technically, the strict total order preservation criteria 
+# along with the specification of the distance function should 
+# make a single column dendrogram suffice, but for the sake of 
+# compatibility with Python (Scipy) function for downstream 
+# clustering task, 4 columns are being maintained
+
 n <- N
 
 # compute distance matrix (vector); distance between each (node, next node) pair; "next" defined as per ordering
@@ -34,7 +41,7 @@ for (i in 1:nrow(dendrogram)) {
   
   if (length(min_dist_ind) > 1) {
     
-    # randomly break ties
+    # randomly break ties: may be superfluous
     min_dist_ind = sample(min_dist_ind, 1)
     
   }
